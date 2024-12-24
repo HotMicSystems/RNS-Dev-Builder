@@ -5,7 +5,7 @@ A convenient collection of resources for development with the reticulum network 
 *Current*
 **OLD**
 - [**Reticulum**](<https://github.com/markqvist/Reticulum>)-*Version 0.8.8* 
-- [**LXMF**](<https://github.com/markqvist/LXMF)-*Version β 0.5.8*
+- [**LXMF**](<https://github.com/markqvist/LXMF>)-*Version β 0.5.8*
 - [**NomadNet**](<https://github.com/markqvist/NomadNet>)-*Version 0.5.6*
 All examples were seperated from the applicable documentation and are labeled in their own examples/ folder.
 This is an ever expanding resource I intend on using for myself so I have a convienent library to open in VScode, but others are free to utilize.
