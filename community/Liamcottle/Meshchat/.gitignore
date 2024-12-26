@@ -1,0 +1,11 @@
+.idea
+node_modules
+
+# build files
+/build/
+/dist/
+/public/
+/electron/build/exe/
+
+# local storage
+storage/
