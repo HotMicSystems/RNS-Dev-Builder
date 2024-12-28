@@ -13,7 +13,7 @@ A convenient collection of resources for development with the reticulum network 
         - [Reticulum-Over-HF](<https://github.com/RFnexus/reticulum-over-hf>)*Up-to-date*
     - [**Liam Cottle**](<https://github.com/liamcottle>)
         - [Meshchat](<https://github.com/liamcottle/reticulum-meshchat>)-*Version 1.16.0*
-        - [RNode Flasher](<https://liamcottle.github.io/rnode-flasher/>)*Included in Meshchat*
+        - [RNode Flasher](<https://liamcottle.github.io/rnode-flasher/>)*Included in Meshchat or use by clicking this link*
 - All examples were seperated from the applicable documentation and are labeled in their own examples/ folder. This is an ever expanding resource I intend on using for myself so I have a convienent library to open in VScode, but others are free to utilize.
 ### Community programs:
 These are utils/programs not developed by Markqvist(Reticulum) but are extremely useful. They will also eventually be added. If you would like to add more please let me know!
@@ -24,5 +24,7 @@ These are utils/programs not developed by Markqvist(Reticulum) but are extremely
     - [feed-reticulum](<https://github.com/gretel/feed-reticulum>)
     - [reticulum-openwrt](<https://github.com/gretel/reticulum-openwrt>)
     - [rns-if-espnow](<https://github.com/gretel/rns-if-espnow>)
+- [**Resilience Theatre**](<https://github.com/resiliencetheatre>)
+    - [Edgemap](<https://github.com/resiliencetheatre/rpi4edgemap>)
 ### Licenses:
-**ALL PROJECTS ARE PROTECTED UNDER THEIR RESPECTED LICENSES. PLEASE REVIEW EACH ONE AS NECESSARY**
+**ALL PROJECTS ARE PROTECTED UNDER THEIR RESPECTED LICENSES. PLEASE REVIEW EACH ONE AS NECESSARY.**
