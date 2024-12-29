@@ -237,14 +237,14 @@
 
                     <!-- image attachment -->
                     <div v-if="newMessageImage" class="mb-2">
-                        <div class="w-32 h-32 rounded shadow border relative overflow-hidden">
+                        <div @click.stop="openImage(newMessageImageUrl)" class="cursor-pointer w-32 h-32 rounded shadow border relative overflow-hidden">
 
                             <!-- image preview -->
                             <img v-if="newMessageImageUrl" :src="newMessageImageUrl" class="w-full h-full object-cover"/>
 
                             <!-- remove button (top right) -->
                             <div class="absolute top-0 right-0 p-1">
-                                <div @click="removeImageAttachment" class="cursor-pointer">
+                                <div @click.stop="removeImageAttachment" class="cursor-pointer">
                                     <div class="flex text-gray-700 bg-gray-100 hover:bg-gray-200 p-1 rounded-full">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
                                             <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
@@ -334,12 +334,9 @@
                         </button>
 
                         <!-- add image -->
-                        <button @click="addImageToMessage" type="button" class="my-auto mr-1 inline-flex items-center gap-x-1 rounded-md bg-gray-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700 dark:focus-visible:outline-zinc-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                                <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clip-rule="evenodd" />
-                            </svg>
-                            <span class="ml-1 hidden xl:inline-block whitespace-nowrap">Add Image</span>
-                        </button>
+                        <div>
+                            <AddImageButton @add-image="onImageSelected"/>
+                        </div>
 
                         <!-- add audio -->
                         <div>
@@ -369,7 +366,6 @@
         </div>
 
         <!-- hidden file input for selecting files -->
-        <input ref="image-input" @change="onImageInputChange" type="file" accept="image/*" style="display:none"/>
         <input ref="file-input" @change="onFileInputChange" type="file" multiple style="display:none"/>
 
     </div>
@@ -398,10 +394,12 @@ import moment from "moment";
 import SendMessageButton from "./SendMessageButton.vue";
 import MaterialDesignIcon from "../MaterialDesignIcon.vue";
 import ConversationDropDownMenu from "./ConversationDropDownMenu.vue";
+import AddImageButton from "./AddImageButton.vue";
 
 export default {
     name: 'ConversationViewer',
     components: {
+        AddImageButton,
         ConversationDropDownMenu,
         MaterialDesignIcon,
         SendMessageButton,
@@ -1095,7 +1093,6 @@ export default {
                 this.newMessageImageUrl = null;
                 this.newMessageAudio = null;
                 this.newMessageFiles = [];
-                this.clearImageInput();
                 this.clearFileInput();
 
             } catch(e) {
@@ -1163,31 +1160,31 @@ export default {
             this.$refs["file-input"].value = null;
         },
         removeImageAttachment: function() {
+
+            // ask user to confirm removing image attachment
+            if(!confirm("Are you sure you want to remove this image attachment?")){
+                return;
+            }
+
+            // remove image
             this.newMessageImage = null;
             this.newMessageImageUrl = null;
+
         },
-        onImageInputChange: function(event) {
-            if(event.target.files.length > 0){
+        onImageSelected: function(imageBlob) {
 
-                // update selected file
-                this.newMessageImage = event.target.files[0];
+            // update selected file
+            this.newMessageImage = imageBlob;
 
-                // update image url when file is read
-                const fileReader = new FileReader();
-                fileReader.onload = (event) => {
-                    this.newMessageImageUrl = event.target.result
-                }
-
-                // convert image to data url
-                fileReader.readAsDataURL(this.newMessageImage);
-
-                // clear image input to allow selecting the same file after user removed it
-                this.clearImageInput();
-
+            // update image url when file is read
+            const fileReader = new FileReader();
+            fileReader.onload = (event) => {
+                this.newMessageImageUrl = event.target.result
             }
-        },
-        clearImageInput: function() {
-            this.$refs["image-input"].value = null;
+
+            // convert image to data url
+            fileReader.readAsDataURL(this.newMessageImage);
+
         },
         async startRecordingAudioAttachment(args) {
 
@@ -1375,9 +1372,6 @@ export default {
         },
         addFilesToMessage: function() {
             this.$refs["file-input"].click();
-        },
-        addImageToMessage: function() {
-            this.$refs["image-input"].click();
         },
         findConversation: function(destinationHash) {
             return this.conversations.find((conversation) => {

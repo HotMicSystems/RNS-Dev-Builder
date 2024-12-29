@@ -1,6 +1,6 @@
 {
   "name": "reticulum-meshchat",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "description": "",
   "main": "electron/main.js",
   "scripts": {
@@ -100,6 +100,7 @@
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
     "click-outside-vue3": "^4.0.1",
+    "compressorjs": "^1.2.1",
     "electron-prompt": "^1.7.0",
     "mitt": "^3.0.1",
     "moment": "^2.30.1",

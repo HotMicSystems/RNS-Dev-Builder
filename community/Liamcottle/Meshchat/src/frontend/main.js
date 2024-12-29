@@ -8,7 +8,6 @@ import "./fonts/RobotoMonoNerdFont/font.css";
 import App from './components/App.vue';
 
 // init vuetify
-import 'vuetify/styles';
 import { createVuetify } from 'vuetify';
 const vuetify = createVuetify();
 
@@ -71,9 +70,9 @@ const router = createRouter({
             component: defineAsyncComponent(() => import("./components/ping/PingPage.vue")),
         },
         {
-            name: "profile",
-            path: '/profile',
-            component: defineAsyncComponent(() => import("./components/profile/ProfilePage.vue")),
+            name: "profile.icon",
+            path: '/profile/icon',
+            component: defineAsyncComponent(() => import("./components/profile/ProfileIconPage.vue")),
         },
         {
             name: "settings",

@@ -20,21 +20,27 @@
             <!-- colours -->
             <div class="bg-white dark:bg-zinc-800 rounded shadow">
                 <div class="flex border-b border-gray-300 dark:border-zinc-700 text-gray-700 dark:text-gray-200 p-2 font-semibold">Select your Colours</div>
-                <div class="flex p-2 space-x-2">
+                <div class="divide-y divide-gray-300 dark:divide-zinc-700 text-gray-900 dark:text-gray-100">
 
-                    <!-- icon colour -->
-                    <div>
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">Icon</div>
-                        <div class="flex">
-                            <ColourPickerDropdown v-model:colour="iconForegroundColour"/>
+                    <!-- background colour -->
+                    <div class="p-2 flex space-x-2">
+                        <div class="flex my-auto">
+                            <ColourPickerDropdown v-model:colour="iconBackgroundColour"/>
+                        </div>
+                        <div class="my-auto">
+                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">Background Colour</div>
+                            <div class="text-sm text-gray-900 dark:text-gray-100">{{ iconBackgroundColour }}</div>
                         </div>
                     </div>
 
-                    <!-- background colour -->
-                    <div>
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">Background</div>
-                        <div class="flex">
-                            <ColourPickerDropdown v-model:colour="iconBackgroundColour"/>
+                    <!-- icon colour -->
+                    <div class="p-2 flex space-x-2">
+                        <div class="flex my-auto">
+                            <ColourPickerDropdown v-model:colour="iconForegroundColour"/>
+                        </div>
+                        <div class="my-auto">
+                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">Icon Colour</div>
+                            <div class="text-sm text-gray-900 dark:text-gray-100">{{ iconForegroundColour }}</div>
                         </div>
                     </div>
 
@@ -48,8 +54,8 @@
                     <div class="flex p-1">
                         <input v-model="search" type="text" :placeholder="`Search ${iconNames.length} icons...`" class="bg-gray-50 dark:bg-zinc-700 border border-gray-300 dark:border-zinc-600 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600 block w-full p-2.5">
                     </div>
-                    <div class="divide-y">
-                        <div @click="onIconClick(mdiIconName)" v-for="mdiIconName of searchedIconNames" class="flex space-x-2 p-2 cursor-pointer hover:bg-gray-100">
+                    <div class="divide-y divide-gray-300 dark:divide-zinc-700">
+                        <div @click="onIconClick(mdiIconName)" v-for="mdiIconName of searchedIconNames" class="flex space-x-2 p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700">
                             <div class="my-auto">
                                 <LxmfUserIcon :icon-name="mdiIconName" :icon-foreground-colour="iconForegroundColour" :icon-background-colour="iconBackgroundColour"/>
                             </div>
@@ -67,13 +73,13 @@
 
 <script>
 import * as mdi from "@mdi/js";
-import MaterialDesignIcon from "../../../../build/exe/lib/src/frontend/components/MaterialDesignIcon.vue";
 import LxmfUserIcon from "../LxmfUserIcon.vue";
 import DialogUtils from "../../js/DialogUtils";
 import ColourPickerDropdown from "../ColourPickerDropdown.vue";
+import MaterialDesignIcon from "../MaterialDesignIcon.vue";
 
 export default {
-    name: 'ProfilePage',
+    name: 'ProfileIconPage',
     components: {
         ColourPickerDropdown,
         LxmfUserIcon,
@@ -178,8 +184,8 @@ export default {
         config() {
             // update ui when config is updated
             this.iconName = this.config.lxmf_user_icon_name;
-            this.iconForegroundColour = this.config.lxmf_user_icon_foreground_colour || "#000000";
-            this.iconBackgroundColour = this.config.lxmf_user_icon_background_colour || "#FFFFFF";
+            this.iconForegroundColour = this.config.lxmf_user_icon_foreground_colour || "#6b7280";
+            this.iconBackgroundColour = this.config.lxmf_user_icon_background_colour || "#e5e7eb";
         },
     },
 }

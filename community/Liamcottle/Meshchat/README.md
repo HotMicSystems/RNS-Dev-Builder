@@ -57,7 +57,13 @@ You can download the latest version for Windows, Mac and Linux from the [release
 
 Alternatively, you can download the source and run it manually from a command line.
 
-See the ["How to use it?"](#how-to-use-it) section below on how to do this.
+See the ["How to use it?"](#how-to-use-it) section, further down on how to do this.
+
+## Other Installation Methods
+
+- [Running MeshChat on Docker](./docs/meshchat_on_docker.md)
+- [Running MeshChat on a Raspberry Pi](./docs/meshchat_on_raspberry_pi.md)
+- [Running MeshChat on Android with Termux](./docs/meshchat_on_android_with_termux.md)
 
 ## Getting Started
 
@@ -191,36 +197,6 @@ options:
                         Path to a directory for storing databases and config files (default: ./storage)
 ```
 
-## Running on Android
-
-It is possible to run on Android from source, using Termux. You will need to install a few extra dependencies and make a change to `requirements.txt`.
-
-```
-pkg upgrade
-pkg install git
-pkg install nodejs-lts
-pkg install python-pip
-pkg install rust
-pkg install binutils
-pkg install build-essential
-```
-
-You should now be able to follow the [how to use it](#how-to-use-it) instructions above.
-
-Before running `pip install -r requirements.txt`, you will need to comment out the `cx_freeze` dependency. It failed to build on my Android tablet, and is not actually required for running from source.
-
-```
-nano requirements.txt
-```
-
-Ensure the `cx_freeze` line is updated to `#cx_freeze`
-
-> Note: Building wheel for cryptography may take a while on Android.
-
-Once MeshChat is running via Termux, open your favourite Android web browser, and navigate to http://localhost:8000
-
-> Note: The default `AutoInterface` may not work on your Android device. You will need to configure another interface such as `TCPClientInterface`.
-
 ## Using an existing Reticulum Identity
 
 The first time you run this application, a new Reticulum identity is generated and saved to `storage/identity`.
@@ -255,19 +231,6 @@ python meshchat.py --identity-base64 "GCN6mMhVemdNIK/fw97C1zvU17qjQPFTXRBotVckeG
 ```
 
 > NOTE: this is a randomly generated identity for example purposes. Do not use it, it has been leaked!
-
-
-## Running via Docker
-
-A docker image is automatically built by GitHub actions, and can be downloaded from the GitHub container registry.
-
-```
-docker pull ghcr.io/liamcottle/reticulum-meshchat:master
-```
-
-Additionally, an example [docker-compose.yml](./docker-compose.yml) is available.
-
-The example automatically generates a new reticulum config file in the `meshchat-config` volume. The MeshChat database is also stored in this volume.
 
 ## Build Electron Application
 
@@ -320,8 +283,6 @@ I build the vite app everytime without hot reload, since MeshChat expects everyt
 ## TODO
 
 - [ ] button to forget announces
-- [ ] optimise ui to work nicely on a mobile device, such as Android/iOS
-  - [ ] will probably write a new app for mobile devices once [microReticulum](https://github.com/attermann/microReticulum) supports Links
 - [ ] support for managing Reticulum interfaces via the web ui
   - [x] AutoInterface
   - [x] RNodeInterface
