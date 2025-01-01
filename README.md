@@ -12,7 +12,7 @@ A convenient collection of resources for development with the reticulum network 
         - [Retipedia](<https://github.com/RFnexus/Retipedia>)
         - [Reticulum-Over-HF](<https://github.com/RFnexus/reticulum-over-hf>)*Up-to-date*
     - [**Liam Cottle**](<https://github.com/liamcottle>)
-        - [Meshchat](<https://github.com/liamcottle/reticulum-meshchat>)-*Version 1.17.0*
+        - [Meshchat](<https://github.com/liamcottle/reticulum-meshchat>)-*Version **1.17.0**
         - [RNode Flasher](<https://liamcottle.github.io/rnode-flasher/>)*Included in Meshchat or use by clicking this link*
 - All examples were seperated from the applicable documentation and are labeled in their own examples/ folder. This is an ever expanding resource I intend on using for myself so I have a convienent library to open in VScode, but others are free to utilize.
 ### Community programs:
