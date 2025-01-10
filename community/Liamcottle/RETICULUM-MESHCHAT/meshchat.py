@@ -24,8 +24,10 @@ from serial.tools import list_ports
 import database
 from src.backend.announce_handler import AnnounceHandler
 from src.backend.colour_utils import ColourUtils
+from src.backend.interface_config_parser import InterfaceConfigParser
 from src.backend.lxmf_message_fields import LxmfImageField, LxmfFileAttachmentsField, LxmfFileAttachment, LxmfAudioField
 from src.backend.audio_call_manager import AudioCall, AudioCallManager
+from src.backend.sideband_commands import SidebandCommands
 
 
 # NOTE: this is required to be able to pack our app with cxfreeze as an exe, otherwise it can't access bundled assets
@@ -581,12 +583,127 @@ class ReticulumMeshChat:
 
             if allow_overwriting_interface:
                 return web.json_response({
-                    "message": "Interface has been saved",
+                    "message": "Interface has been saved. Please restart MeshChat for these changes to take effect.",
                 })
             else:
                 return web.json_response({
-                    "message": "Interface has been added",
+                    "message": "Interface has been added. Please restart MeshChat for these changes to take effect.",
                 })
+        
+        # export interfaces
+        @routes.post("/api/v1/reticulum/interfaces/export")
+        async def export_interfaces(request):
+            try:
+
+                # get request data
+                selected_interface_names = None
+                try:
+                    data = await request.json()
+                    selected_interface_names = data.get('selected_interface_names')
+                except:
+                    # request data was not json, but we don't care
+                    pass
+
+                # format interfaces for export
+                output = []
+                for interface_name, interface in self.reticulum.config["interfaces"].items():
+
+                    # skip interface if not selected
+                    if selected_interface_names is not None and selected_interface_names != "":
+                        if interface_name not in selected_interface_names:
+                            continue
+
+                    # add interface to output
+                    output.append(f"[[{interface_name}]]")
+                    for key, value in interface.items():
+                        output.append(f"    {key} = {value}")
+                    output.append("")
+                
+                return web.Response(
+                    text="\n".join(output),
+                    content_type="text/plain",
+                    headers={
+                        "Content-Disposition": "attachment; filename=meshchat_interfaces"
+                    }
+                )
+
+            except Exception as e:
+                return web.json_response({
+                    "message": f"Failed to export interfaces: {str(e)}"
+                }, status=500)
+
+        # preview importable interfaces
+        @routes.post("/api/v1/reticulum/interfaces/import-preview")
+        async def import_interfaces_preview(request):
+            try:
+
+                # get request data
+                data = await request.json()
+                config = data.get('config')
+
+                # parse interfaces from config
+                interfaces = InterfaceConfigParser.parse(config)
+                    
+                return web.json_response({
+                    "interfaces": interfaces
+                })
+                
+            except Exception as e:
+                return web.json_response({
+                    "message": f"Failed to parse config file: {str(e)}"
+                }, status=500)
+
+        # import interfaces from config
+        @routes.post("/api/v1/reticulum/interfaces/import")
+        async def import_interfaces(request):
+            try:
+
+                # get request data
+                data = await request.json()
+                config = data.get('config')
+                selected_interface_names = data.get('selected_interface_names')
+
+                # parse interfaces from config
+                interfaces = InterfaceConfigParser.parse(config)
+
+                # find selected interfaces
+                selected_interfaces = []
+                for interface in interfaces:
+                    if interface["name"] in selected_interface_names:
+                        selected_interfaces.append(interface)
+
+                # convert interfaces to object
+                interface_config = {}
+                for interface in selected_interfaces:
+
+                    # add interface and keys/values
+                    interface_name = interface["name"]
+                    interface_config[interface_name] = {}
+                    for key, value in interface.items():
+                        interface_config[interface_name][key] = value
+
+                    # unset name which isn't part of the config
+                    del interface_config[interface_name]["name"]
+
+                    # force imported interface to be enabled by default
+                    interface_config[interface_name]["interface_enabled"] = "true"
+
+                    # remove enabled config value in favour of interface_enabled
+                    if "enabled" in interface_config[interface_name]:
+                        del interface_config[interface_name]["enabled"]
+
+                # update reticulum config with new interfaces
+                self.reticulum.config["interfaces"].update(interface_config)
+                self.reticulum.config.write()
+
+                return web.json_response({
+                    "message": "Interfaces imported successfully",
+                })
+                
+            except Exception as e:
+                return web.json_response({
+                    "message": f"Failed to import interfaces: {str(e)}"
+                }, status=500)
 
         # handle websocket clients
         @routes.get("/ws")
@@ -661,6 +778,30 @@ class ReticulumMeshChat:
 
             return web.json_response({
                 "config": self.get_config_dict(),
+            })
+
+        # enable transport mode
+        @routes.post("/api/v1/reticulum/enable-transport")
+        async def index(request):
+
+            # enable transport mode
+            self.reticulum.config["reticulum"]["enable_transport"] = True
+            self.reticulum.config.write()
+
+            return web.json_response({
+                "message": "Transport has been enabled. MeshChat must be restarted for this change to take effect.",
+            })
+
+        # disable transport mode
+        @routes.post("/api/v1/reticulum/disable-transport")
+        async def index(request):
+
+            # disable transport mode
+            self.reticulum.config["reticulum"]["enable_transport"] = False
+            self.reticulum.config.write()
+
+            return web.json_response({
+                "message": "Transport has been disabled. MeshChat must be restarted for this change to take effect.",
             })
 
         # get calls
@@ -1890,6 +2031,7 @@ class ReticulumMeshChat:
             "identity_hash": self.identity.hexhash,
             "lxmf_address_hash": self.local_lxmf_destination.hexhash,
             "audio_call_address_hash": self.audio_call_manager.audio_call_receiver.destination.hexhash,
+            "is_transport_enabled": self.reticulum.transport_enabled(),
             "auto_announce_enabled": self.config.auto_announce_enabled.get(),
             "auto_announce_interval_seconds": self.config.auto_announce_interval_seconds.get(),
             "last_announced_at": self.config.last_announced_at.get(),
@@ -2185,6 +2327,19 @@ class ReticulumMeshChat:
     # NOTE: cant be async, as Reticulum doesn't await it
     def on_lxmf_delivery(self, lxmf_message: LXMF.LXMessage):
         try:
+
+            # check if this lxmf message contains a telemetry request command from sideband
+            is_sideband_telemetry_request = False
+            lxmf_fields = lxmf_message.get_fields()
+            if LXMF.FIELD_COMMANDS in lxmf_fields:
+                for command in lxmf_fields[LXMF.FIELD_COMMANDS]:
+                    if SidebandCommands.TELEMETRY_REQUEST in command:
+                        is_sideband_telemetry_request = True
+
+            # ignore telemetry requests from sideband
+            if is_sideband_telemetry_request:
+                print("Ignoring received LXMF message as it is a telemetry request command")
+                return
 
             # upsert lxmf message to database
             self.db_upsert_lxmf_message(lxmf_message)
